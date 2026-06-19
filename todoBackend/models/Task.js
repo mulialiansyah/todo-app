@@ -26,6 +26,10 @@ const Task = sequelize.define('Task', {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  image: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
+  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,

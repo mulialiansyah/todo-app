@@ -120,8 +120,8 @@ export default function Header({ user }) {
         )}
 
         <div className="date-display">
-          <div className="day">Tuesday</div>
-          <div className="date">20/06/2023</div>
+          <div className="day">{new Date().toLocaleDateString('en-GB', {weekday: 'long'})}</div>
+          <div className="date">{new Date().toLocaleDateString('en-GB')}</div>
         </div>
       </div>
     </header>

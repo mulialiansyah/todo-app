@@ -129,7 +129,9 @@ export default function Dashboard({ user }) {
             </div>
             <div style={{color: '#ff6b6b', fontSize: '14px', cursor: 'pointer'}} onClick={openAddModal}>+ Add task</div>
           </div>
-          <div style={{fontSize: '14px', color: '#888', marginBottom: '16px'}}>20 June • Today</div>
+          <div style={{fontSize: '14px', color: '#888', marginBottom: '16px'}}>
+            {new Date().toLocaleDateString('en-GB', {day: 'numeric', month: 'long'})} • Today
+          </div>
           
           {todoTasks.length === 0 ? (
             <div style={{textAlign: 'center', color: '#aaa', padding: '40px 0'}}>
