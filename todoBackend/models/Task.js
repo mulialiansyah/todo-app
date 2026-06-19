@@ -20,12 +20,16 @@ const Task = sequelize.define('Task', {
   },
   duration: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   deadline: {
     type: DataTypes.DATE,
     allowNull: true,
   },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  }
 }, {
   timestamps: true,
 });

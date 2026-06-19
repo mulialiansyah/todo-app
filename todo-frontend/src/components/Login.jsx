@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 export default function Login({ onLogin }) {
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -14,12 +15,13 @@ export default function Login({ onLogin }) {
     const url = `http://localhost:3000${endpoint}`;
 
     try {
+      const bodyData = isLoginMode ? { email, password } : { name, email, password };
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify(bodyData)
       });
 
       const data = await response.json();
@@ -47,6 +49,19 @@ export default function Login({ onLogin }) {
         <form onSubmit={handleSubmit} className="login-form">
           {errorMsg && <div style={{ color: 'red', marginBottom: '16px', fontSize: '14px', textAlign: 'center' }}>{errorMsg}</div>}
           
+          {!isLoginMode && (
+            <div className="input-group">
+              <label>Full Name</label>
+              <input 
+                type="text" 
+                placeholder="Enter your name" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required={!isLoginMode}
+              />
+            </div>
+          )}
+
           <div className="input-group">
             <label>Email Address</label>
             <input 

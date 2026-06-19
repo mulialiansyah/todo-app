@@ -11,25 +11,23 @@ import './App.css';
 import './components.css';
 
 function App() {
-  // Start with logged out state to show login page first
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
+  if (!currentUser) {
+    return <Login onLogin={(user) => setCurrentUser(user)} />;
   }
 
   return (
     <Router>
       <div className="app-container">
-        <Sidebar onLogout={() => setIsLoggedIn(false)} />
+        <Sidebar user={currentUser} onLogout={() => setCurrentUser(null)} />
         <main className="main-content">
-          <Header />
+          <Header user={currentUser} />
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/vital" element={<TasksLayout title="Vital Tasks" tasks={vitalTasksData} selectedTask={vitalTaskDetail} />} />
-            <Route path="/my-tasks" element={<TasksLayout title="My Tasks" tasks={myTasksData} selectedTask={myTaskDetail} />} />
+            <Route path="/" element={<Dashboard user={currentUser} />} />
+            <Route path="/vital" element={<TasksLayout title="Vital Tasks" user={currentUser} />} />
+            <Route path="/my-tasks" element={<TasksLayout title="My Tasks" user={currentUser} />} />
             <Route path="/categories" element={<TaskCategories />} />
-            {/* Fallback to Dashboard for other links for now */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

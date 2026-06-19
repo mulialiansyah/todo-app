@@ -1,8 +1,16 @@
 const express = require("express");
 const cors = require("cors");
 const sequelize = require("./config/database");
-const Task = require("./models/Task");
 const User = require("./models/User");
+const Task = require("./models/Task");
+const Category = require("./models/Category");
+
+// Relationships
+User.hasMany(Task, { foreignKey: 'userId' });
+Task.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasMany(Category, { foreignKey: 'userId' });
+Category.belongsTo(User, { foreignKey: 'userId' });
 
 const app = express();
 const PORT = 3000;
@@ -26,23 +34,22 @@ app.get("/", (req, res) => {
 });
 
 // AUTH ROUTES
-// Register
 app.post("/register", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
     
-    // Cek apakah email sudah ada
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Email sudah terdaftar" });
     }
 
-    const newUser = await User.create({ email, password });
+    const newUser = await User.create({ name, email, password });
 
     res.status(201).json({
       message: "Registrasi berhasil",
       user: {
         id: newUser.id,
+        name: newUser.name,
         email: newUser.email
       }
     });
@@ -51,7 +58,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Login
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -61,7 +67,6 @@ app.post("/login", async (req, res) => {
       return res.status(404).json({ message: "Pengguna tidak ditemukan" });
     }
 
-    // Perbandingan sederhana (tanpa hashing)
     if (user.password !== password) {
       return res.status(401).json({ message: "Password salah" });
     }
@@ -70,6 +75,7 @@ app.post("/login", async (req, res) => {
       message: "Login berhasil",
       user: {
         id: user.id,
+        name: user.name,
         email: user.email
       }
     });
@@ -78,11 +84,70 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// CREATE task
+// CATEGORY ROUTES
+app.get("/categories", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ message: "userId required" });
+
+    const categories = await Category.findAll({ where: { userId } });
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.post("/categories", async (req, res) => {
+  try {
+    const { name, type, userId } = req.body;
+    const category = await Category.create({ name, type, userId });
+    res.status(201).json({ message: "Category created", data: category });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.put("/categories/:id", async (req, res) => {
+  try {
+    const [updatedRows] = await Category.update(req.body, {
+      where: { id: req.params.id }
+    });
+    if (updatedRows === 0) return res.status(404).json({ message: "Category not found" });
+    const updatedCategory = await Category.findByPk(req.params.id);
+    res.json({ message: "Category updated", data: updatedCategory });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+app.delete("/categories/:id", async (req, res) => {
+  try {
+    const deletedRows = await Category.destroy({
+      where: { id: req.params.id }
+    });
+    if (deletedRows === 0) return res.status(404).json({ message: "Category not found" });
+    res.json({ message: "Category deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// TASK ROUTES
+app.get("/tasks", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) return res.status(400).json({ message: "userId required" });
+
+    const tasks = await Task.findAll({ where: { userId } });
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.post("/tasks", async (req, res) => {
   try {
     const task = await Task.create(req.body);
-
     res.status(201).json({
       message: "Task berhasil ditambahkan",
       data: task,
@@ -92,17 +157,6 @@ app.post("/tasks", async (req, res) => {
   }
 });
 
-// READ semua task
-app.get("/tasks", async (req, res) => {
-  try {
-    const tasks = await Task.findAll();
-    res.json(tasks);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// UPDATE task
 app.put("/tasks/:id", async (req, res) => {
   try {
     const [updatedRows] = await Task.update(req.body, {
@@ -124,7 +178,6 @@ app.put("/tasks/:id", async (req, res) => {
   }
 });
 
-// DELETE task
 app.delete("/tasks/:id", async (req, res) => {
   try {
     const deletedRows = await Task.destroy({

@@ -1,17 +1,14 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, AlertCircle, CheckSquare, List, LogOut } from 'lucide-react';
 
-export default function Sidebar({ onLogout }) {
+export default function Sidebar({ user, onLogout }) {
+  const profileName = user?.name || "Sundar Gurung";
+  const profileEmail = user?.email || "sundargurung360@gmail.com";
   return (
     <aside className="sidebar">
       <div className="sidebar-profile">
-        <img 
-          src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" 
-          alt="Profile" 
-          className="profile-img"
-        />
-        <div className="profile-name">Sundar Gurung</div>
-        <div className="profile-email">sundargurung360@gmail.com</div>
+        <div className="profile-name" style={{marginTop: '20px'}}>{profileName}</div>
+        <div className="profile-email">{profileEmail}</div>
       </div>
 
       <nav className="nav-menu">
